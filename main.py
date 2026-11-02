@@ -38,16 +38,21 @@ except Exception as e:
     postgres.rollback()
 
 try:
-    print("\nJOIN:")
     print("Food     | Food Group")
     join = postgres.join_foods_per_group()
+    print(join)
 except Exception as e:
     print(f"[ERROR] {e}")
 
 try:
-    print("\nJOIN:")
     print("Diet     | Diet Food")
     join = postgres.join_diet_foods()
+    print(join)
+except Exception as e:
+    print(f"[ERROR] {e}")
+
+try:
+    join = postgres.join_user_diets()
     print(join)
 except Exception as e:
     print(f"[ERROR] {e}")

@@ -26,61 +26,69 @@ class Database:
     def create_tables(self):
         with self.conn.cursor() as self.cursor:
             self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS users (
-            id              INTEGER         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-            username        TEXT            UNIQUE NOT NULL,
-            password_hash   TEXT            NOT NULL
-            );
+                CREATE TABLE IF NOT EXISTS users (
+                id              INTEGER         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                username        TEXT            UNIQUE NOT NULL,
+                password_hash   TEXT            NOT NULL
+                );
             """)
             self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS food_groups (
-            id              INTEGER         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-            name            TEXT            UNIQUE NOT NULL
-            );
+                CREATE TABLE IF NOT EXISTS food_groups (
+                id              INTEGER         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                name            TEXT            UNIQUE NOT NULL
+                );
             """)
             self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS foods (
-            id              INTEGER         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-            name            TEXT            UNIQUE NOT NULL,
-            energy          NUMERIC(10, 1)   NOT NULL,
-            fat             NUMERIC(10, 1)   NOT NULL,
-            saturates       NUMERIC(10, 1)   NOT NULL,
-            carbohydrate    NUMERIC(10, 1)   NOT NULL,
-            sugars          NUMERIC(10, 1)   NOT NULL,
-            protein         NUMERIC(10, 1)   NOT NULL,
-            salt            NUMERIC(10, 1)   NOT NULL,
-            food_group_id   INTEGER         REFERENCES food_groups(id)
-            );
+                CREATE TABLE IF NOT EXISTS foods (
+                id              INTEGER         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                name            TEXT            UNIQUE NOT NULL,
+                energy          NUMERIC(10, 1)  NOT NULL,
+                fat             NUMERIC(10, 1)  NOT NULL,
+                saturates       NUMERIC(10, 1)  NOT NULL,
+                carbohydrate    NUMERIC(10, 1)  NOT NULL,
+                sugars          NUMERIC(10, 1)  NOT NULL,
+                protein         NUMERIC(10, 1)  NOT NULL,
+                salt            NUMERIC(10, 1)  NOT NULL,
+                food_group_id   INTEGER         REFERENCES food_groups(id)
+                );
             """)
             self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS diets (
-            id              INTEGER         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-            name            TEXT            UNIQUE,
-            description     TEXT,
-            created_on       TIMESTAMPTZ    NOT NULL DEFAULT NOW(),
-            user_id         INTEGER         REFERENCES users(id)
-            );
+                CREATE TABLE IF NOT EXISTS diets (
+                id              INTEGER         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                name            TEXT            UNIQUE,
+                description     TEXT,
+                created_on      TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
+                user_id         INTEGER         REFERENCES users(id)
+                );
             """)
             self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS diet_foods (
-            id              INTEGER         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-            diet_id         INTEGER         REFERENCES diets(id),
-            food_id         INTEGER         REFERENCES foods(id),
-            quantity        INTEGER         NOT NULL
-            );
+                CREATE TABLE IF NOT EXISTS diet_foods (
+                id              INTEGER         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                diet_id         INTEGER         REFERENCES diets(id),
+                food_id         INTEGER         REFERENCES foods(id),
+                quantity        INTEGER         NOT NULL
+                );
             """)
             self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS daily_metrics (
-            id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-            date            DATE             NOT NULL,
-            energy          NUMERIC(10, 1)   NOT NULL,
-            fat             NUMERIC(10, 1)   NOT NULL,
-            saturates       NUMERIC(10, 1)   NOT NULL,
-            carbohydrate    NUMERIC(10, 1)   NOT NULL,
-            sugars          NUMERIC(10, 1)   NOT NULL,
-            protein         NUMERIC(10, 1)   NOT NULL,
-            salt            NUMERIC(10, 1)   NOT NULL
-            );
+                CREATE TABLE IF NOT EXISTS daily (
+                id              INTEGER          GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                energy          NUMERIC(10, 1)   NOT NULL,
+                fat             NUMERIC(10, 1)   NOT NULL,
+                saturates       NUMERIC(10, 1)   NOT NULL,
+                carbohydrate    NUMERIC(10, 1)   NOT NULL,
+                sugars          NUMERIC(10, 1)   NOT NULL,
+                protein         NUMERIC(10, 1)   NOT NULL,
+                salt            NUMERIC(10, 1)   NOT NULL,
+                date            DATE             NOT NULL DEFAULT NOW()
+                );
+            """)
+            self.cursor.execute("""
+                CREATE TABLE IF NOT EXISTS consumed (
+                id              INTEGER          GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                food_id         INTEGER          REFERENCES foods(id),
+                daily_id        INTEGER          REFERENCES daily(id),
+                time            TIMESTAMPZ       NOT NULL DEFAULT NOW()
+                )
             """)
         self.conn.commit()
 
@@ -153,6 +161,32 @@ class Database:
         self.conn.commit()
         return res
 
+    def insert_daily(self, energy: Decimal, fat: Decimal, saturates: Decimal, carbohydrate: Decimal, sugars: Decimal, protein: Decimal, salt: Decimal) -> tuple[int, str, str, str, str, str, str, str, str]:
+        with self.conn.cursor() as self.cursor:
+            self.cursor.execute("""
+            INSERT INTO daily (energy, fat, saturates, carbohydrate, sugars, protein, salt)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            RETURNING *
+            """,
+            (energy, fat, saturates, carbohydrate, sugars, protein, salt)
+            )
+            res = self.cursor.fetchone()
+        self.conn.commit()
+        return res
+
+    def insert_consumed(self, food_id: int, daily_id: int) -> tuple[int, int, int, str]:
+        with self.conn.cursor() as self.cursor:
+            self.cursor.execute("""
+            INSERT INTO consumed (food_id, daily_id)
+            VALUES (%s, %s)
+            RETURNING *
+            """,
+            (food_id, daily_id)
+            )
+            res = self.cursor.fetchone()
+        self.conn.commit()
+        return res
+
     def join_foods_per_group(self) -> list[tuple[str, str]]:
         with self.conn.cursor() as self.cursor:
             self.cursor.execute("""
@@ -160,6 +194,17 @@ class Database:
                 FROM foods
                 INNER JOIN food_groups
                     ON foods.food_group_id = food_groups.id
+            """)
+            res = self.cursor.fetchall()
+        return res
+
+    def join_user_diets(self) -> list[tuple[str, str]]:
+        with self.conn.cursor() as self.cursor:
+            self.cursor.execute("""
+                SELECT users.username, diets.name
+                FROM users
+                INNER JOIN diets
+                    ON diets.user_id = users.id
             """)
             res = self.cursor.fetchall()
         return res
