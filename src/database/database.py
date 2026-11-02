@@ -11,7 +11,7 @@ class Database:
         self.conn = psycopg.connect(
             host=os.getenv("DB_HOST", "127.0.0.1"),
             port=5432,
-            dbname="ergosum",
+            dbname="data",
             user="postgres",
             password=os.environ["DB_PASSWORD"]
         )
@@ -153,10 +153,37 @@ class Database:
         self.conn.commit()
         return res
 
+    def join_foods_per_group(self) -> list[tuple[str, str]]:
+        with self.conn.cursor() as self.cursor:
+            self.cursor.execute("""
+                SELECT foods.name, food_groups.name
+                FROM foods
+                INNER JOIN food_groups
+                    ON foods.food_group_id = food_groups.id
+            """)
+            res = self.cursor.fetchall()
+        return res
+
+    def join_diet_foods(self) -> list[tuple[str, str]]:
+        with self.conn.cursor() as self.cursor:
+            self.cursor.execute("""
+                SELECT d.name, f.name
+                FROM diets d, foods f
+                WHERE d.id IN (
+                    SELECT diet_id
+                    FROM diet_foods
+                    WHERE f.id IN (
+                        SELECT food_id
+                        FROM diet_foods
+                    )
+                )
+            """)
+            self.cursor.execute
+            res = self.cursor.fetchall()
+        return res
 
     def rollback(self):
         self.conn.rollback()
 
     def commit(self):
         self.conn.commit()
-            
