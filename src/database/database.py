@@ -18,9 +18,9 @@ class Database:
         self.create_tables()
 
         try:
-            self.create_food_groups()
+            self.insert_food_groups()
         except:
-            print("create_food_groups already executed")
+            print("[ERROR] create_food_groups already executed")
             self.conn.rollback()
 
     def create_tables(self):
@@ -41,7 +41,7 @@ class Database:
             self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS foods (
             id              INTEGER         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-            name            TEXT            NOT NULL,
+            name            TEXT            UNIQUE NOT NULL,
             energy          NUMERIC(10, 1)   NOT NULL,
             fat             NUMERIC(10, 1)   NOT NULL,
             saturates       NUMERIC(10, 1)   NOT NULL,
@@ -84,7 +84,7 @@ class Database:
             """)
         self.conn.commit()
 
-    def create_users(self, username: str, password_hash: str) -> tuple[int, str, str]:
+    def insert_users(self, username: str, password_hash: str) -> tuple[int, str, str]:
         with self.conn.cursor() as self.cursor:
             self.cursor.execute("""
                 INSERT INTO users (username, password_hash)
@@ -97,7 +97,7 @@ class Database:
         self.conn.commit()
         return res
 
-    def create_food_groups(self) -> tuple[str]:
+    def insert_food_groups(self) -> tuple[str]:
         with self.conn.cursor() as self.cursor:
             self.cursor.execute("""
             INSERT INTO food_groups (name)
@@ -126,6 +126,33 @@ class Database:
             res = self.cursor.fetchone()
         self.conn.commit()
         return res
+
+    def insert_diets(self, name: str, description: str, user_id: int) -> tuple[int, str, str, int]:
+        with self.conn.cursor() as self.cursor:
+            self.cursor.execute("""
+            INSERT INTO diets (name, description, user_id)
+            VALUES (%s, %s, %s)
+            RETURNING id, name, description, user_id;
+            """,
+            (name, description, user_id)
+            )
+            res = self.cursor.fetchone()
+        self.conn.commit()
+        return res
+
+    def insert_diet_foods(self, diet_id: int, food_id: int, quantity: int):
+        with self.conn.cursor() as self.cursor:
+            self.cursor.execute("""
+                INSERT INTO diet_foods (diet_id, food_id, quantity)
+                VALUES (%s, %s, %s)
+                RETURNING id, diet_id, food_id, quantity;
+            """,
+            (diet_id, food_id, quantity)            
+            )
+            res = self.cursor.fetchone()
+        self.conn.commit()
+        return res
+
 
     def rollback(self):
         self.conn.rollback()
