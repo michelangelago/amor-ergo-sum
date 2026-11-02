@@ -170,9 +170,22 @@ class Database:
             """,
             (energy, fat, saturates, carbohydrate, sugars, protein, salt)
             )
-        res = self.cursor.fetchone()
+            res = self.cursor.fetchone()
         self.conn.commit()
-        
+        return res
+
+    def insert_consumed(self, food_id: int, daily_id: int) -> tuple[int, int, int, str]:
+        with self.conn.cursor() as self.cursor:
+            self.cursor.execute("""
+            INSERT INTO consumed (food_id, daily_id)
+            VALUES (%s, %s)
+            RETURNING *
+            """,
+            (food_id, daily_id)
+            )
+            res = self.cursor.fetchone()
+        self.conn.commit()
+        return res
 
     def join_foods_per_group(self) -> list[tuple[str, str]]:
         with self.conn.cursor() as self.cursor:
