@@ -72,7 +72,6 @@ class Database:
             self.cursor.execute("""
                 CREATE TABLE IF NOT EXISTS daily (
                 id              INTEGER          GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                date            DATE             NOT NULL,
                 energy          NUMERIC(10, 1)   NOT NULL,
                 fat             NUMERIC(10, 1)   NOT NULL,
                 saturates       NUMERIC(10, 1)   NOT NULL,
@@ -80,7 +79,7 @@ class Database:
                 sugars          NUMERIC(10, 1)   NOT NULL,
                 protein         NUMERIC(10, 1)   NOT NULL,
                 salt            NUMERIC(10, 1)   NOT NULL,
-                date            TIMESTAMPZ       NOT NULL DEFAULT NOW(),
+                date            DATE             NOT NULL DEFAULT NOW()
                 );
             """)
             self.cursor.execute("""
@@ -88,7 +87,7 @@ class Database:
                 id              INTEGER          GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                 food_id         INTEGER          REFERENCES foods(id),
                 daily_id        INTEGER          REFERENCES daily(id),
-                date            TIMESTAMPZ       NOT NULL DEFAULT NOW(),
+                time            TIMESTAMPZ       NOT NULL DEFAULT NOW()
                 )
             """)
         self.conn.commit()
@@ -161,6 +160,19 @@ class Database:
             res = self.cursor.fetchone()
         self.conn.commit()
         return res
+
+    def insert_daily(self, energy: Decimal, fat: Decimal, saturates: Decimal, carbohydrate: Decimal, sugars: Decimal, protein: Decimal, salt: Decimal) -> tuple[int, str, str, str, str, str, str, str, str]:
+        with self.conn.cursor() as self.cursor:
+            self.cursor.execute("""
+            INSERT INTO daily (energy, fat, saturates, carbohydrate, sugars, protein, salt)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            RETURNING *
+            """,
+            (energy, fat, saturates, carbohydrate, sugars, protein, salt)
+            )
+        res = self.cursor.fetchone()
+        self.conn.commit()
+        
 
     def join_foods_per_group(self) -> list[tuple[str, str]]:
         with self.conn.cursor() as self.cursor:
