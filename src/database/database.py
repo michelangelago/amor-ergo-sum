@@ -2,6 +2,7 @@ import os
 import psycopg
 from dotenv import load_dotenv
 from decimal import Decimal
+import datetime as date
 
 load_dotenv()
 
@@ -87,7 +88,7 @@ class Database:
                 id              INTEGER          GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                 food_id         INTEGER          REFERENCES foods(id),
                 daily_id        INTEGER          REFERENCES daily(id),
-                time            TIMESTAMPZ       NOT NULL DEFAULT NOW()
+                time            TIMESTAMPTZ       NOT NULL DEFAULT NOW()
                 )
             """)
         self.conn.commit()
@@ -224,6 +225,17 @@ class Database:
                 )
             """)
             self.cursor.execute
+            res = self.cursor.fetchall()
+        return res
+
+    def join_daily_consumed(self) -> list[tuple[str, date]]:
+        with self.conn.cursor() as self.cursor:
+            self.cursor.execute("""
+            SELECT foods.name, consumed.time
+            FROM foods
+            INNER JOIN consumed
+                ON consumed.food_id = foods.id
+            """)
             res = self.cursor.fetchall()
         return res
 

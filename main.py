@@ -56,3 +56,10 @@ try:
     print(join)
 except Exception as e:
     print(f"[ERROR] {e}")
+
+try:
+    join = postgres.join_daily_consumed()
+    print(join)
+except Exception as e:
+    print(f"[ERROR] {e}")
+
