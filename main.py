@@ -1,4 +1,7 @@
-from app.utils.paths import Path
+from app.utils.path_loader import PathLoader
+from app.database.migration_loader import MigrationLoader
 
-path = Path()
-path.getMigration("001_create_users")
+PLoader = PathLoader()
+MLoader = MigrationLoader()
+
+MLoader.create_migration_loader()

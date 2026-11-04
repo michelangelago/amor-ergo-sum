@@ -1,5 +1,5 @@
 import os
-class Path:
+class PathLoader:
     def getMigration(self, migration):
         cwd = os.getcwd()
         os.chdir(f"{cwd}/app/database/migrations")

@@ -1,8 +1,12 @@
-from connection import Connection
-from ..utils.path_loader import Path
+from ..database.connection import Connection
+from ..utils.path_loader import PathLoader
 
-def migration_loader():
-    print
+class MigrationLoader:
+    def __init__(self):
+        self.conn = Connection()
+        self.cursor = self.conn.cursor()
+        self.PLoader = PathLoader()
 
-if __name__ == "__main__":
-    migration_loader()
+
+    def create_migration_loader(self):
+        self.cursor.execute(self.PLoader.getMigration("001_create_users"))
