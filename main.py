@@ -1,3 +1,4 @@
-from app.ui.interface import Interface
+from app.utils.paths import Path
 
-interface = Interface()
+path = Path()
+path.getMigration("001_create_users")
