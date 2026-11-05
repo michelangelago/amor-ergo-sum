@@ -21,5 +21,6 @@ class DietFoodMigration:
         self.conn.commit()
 
     def down(self):
-        self.cursor.execute("DROP TABLE IF EXISTS diet_foods;")
-        self.conn.commit()
+        with self.cursor.execute:
+            self.cursor.execute("DROP TABLE IF EXISTS diet_foods;")
+            self.conn.commit()

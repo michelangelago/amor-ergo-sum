@@ -20,5 +20,6 @@ class UserMigration:
         self.conn.commit()
 
     def down(self):
-        self.cursor.execute("DROP TABLE IF EXISTS users;")
-        self.conn.commit()
+        with self.cursor.execute:
+            self.cursor.execute("DROP TABLE IF EXISTS users;")
+            self.conn.commit()

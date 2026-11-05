@@ -21,5 +21,6 @@ class ConsumedMigration:
         self.conn.commit()
 
     def down(self):
-        self.cursor.execute("DROP TABLE IF EXISTS consumed;")
-        self.conn.commit()
+        with self.cursor.execute:
+            self.cursor.execute("DROP TABLE IF EXISTS consumed;")
+            self.conn.commit()

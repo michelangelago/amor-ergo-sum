@@ -26,5 +26,6 @@ class DailyMigration:
         self.conn.commit()
 
     def down(self):
-        self.cursor.execute("DROP TABLE IF EXISTS daily;")
-        self.conn.commit()
+        with self.cursor.execute:
+            self.cursor.execute("DROP TABLE IF EXISTS daily;")
+            self.conn.commit()
