@@ -3,7 +3,7 @@ class PathLoader:
     def getMigration(self, migration):
         cwd = os.getcwd()
         os.chdir(f"{cwd}/app/database/migrations")
-        f = open(f"{migration}.sql", "r", encoding="utf-8")
-        content = f.readlines()
+        import migration
+        content = migration.query()
         print(content)
         return content 

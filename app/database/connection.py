@@ -22,3 +22,6 @@ class Connection:
 
     def cursor(self):
         return self.conn.cursor()
+
+    def commit(self):
+        return self.conn.commit()

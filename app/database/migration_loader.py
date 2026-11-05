@@ -9,4 +9,4 @@ class MigrationLoader:
 
 
     def create_migration_loader(self):
-        self.cursor.execute(self.PLoader.getMigration("001_create_users"))
+        print
