@@ -1,7 +1,6 @@
 import os
 import psycopg
 from dotenv import load_dotenv
-from decimal import Decimal
 import datetime
 
 load_dotenv()
@@ -10,14 +9,19 @@ class Connection:
     def __init__(self):
         try:
             self.conn = psycopg.connect(
-                host=os.getenv("DB_HOST", "127.0.0.1"),
-                port=5432,
-                dbname=os.environ["DB_NAME"],
-                user=os.environ["DB_USER"],
-                password=os.environ["DB_PASSWORD"]
+            host=os.getenv("DB_HOST", "127.0.0.1"),
+            port=5432,
+            dbname="data",
+            user="postgres",
+            password=os.environ["DB_PASSWORD"]
             )
         except Exception as e:
             print(f"[ERROR]: {e}")
+        else:
+            print("Connection connected")
 
-    def get_connection(self):
-        return self.conn
+    def cursor(self):
+        return self.conn.cursor()
+
+    def commit(self):
+        return self.conn.commit()
