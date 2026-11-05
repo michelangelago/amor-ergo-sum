@@ -1,5 +1,6 @@
-from ..connection import Connection
+from app.data.connection import Connection
 
-class user:
+class UserRepository:
     def __init__():
-        self.conn = Connection.get_connection()
+        self.conn = Connection()
+        self.cursor = self.conn.cursor()

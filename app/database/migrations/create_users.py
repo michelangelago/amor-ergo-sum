@@ -8,14 +8,15 @@ class UserMigration:
 
     def up(self):
         print("UserMi")
-        self.cursor.execute(
-            """ CREATE TABLE IF NOT EXISTS users (
-                    id              INTEGER         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    username        TEXT            UNIQUE NOT NULL,
-                    password_hash   TEXT            NOT NULL
-                ); 
-            """
-        )
+        with self.cursor.execute:
+            self.cursor.execute(
+                """ CREATE TABLE IF NOT EXISTS users (
+                        id              INTEGER         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                        username        TEXT            UNIQUE NOT NULL,
+                        password_hash   TEXT            NOT NULL
+                    ); 
+                """
+            )
         self.conn.commit()
 
     def down(self):

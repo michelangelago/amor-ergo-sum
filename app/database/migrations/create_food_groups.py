@@ -8,13 +8,14 @@ class FoodGroupMigration:
 
     def up(self):
         print("FoodGroupMi")
-        self.cursor.execute(
-            """ CREATE TABLE IF NOT EXISTS food_groups (
-                    id              INTEGER         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    name            TEXT            UNIQUE NOT NULL
-                ); 
-            """
-        )
+        with self.cursor.execute:
+            self.cursor.execute(
+                """ CREATE TABLE IF NOT EXISTS food_groups (
+                        id              INTEGER         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                        name            TEXT            UNIQUE NOT NULL
+                    ); 
+                """
+            )
         self.conn.commit()
 
     def down(self):

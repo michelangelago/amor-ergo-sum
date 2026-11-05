@@ -8,15 +8,16 @@ class ConsumedMigration:
 
     def up(self):
         print("ConsumedMi")
-        self.cursor.execute(
-            """ CREATE TABLE IF NOT EXISTS consumed (
-                    id              INTEGER          GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    food_id         INTEGER          REFERENCES foods(id),
-                    daily_id        INTEGER          REFERENCES daily(id),
-                    time            TIMESTAMPTZ       NOT NULL DEFAULT NOW()
-                );
-            """
-        )
+        with self.cursor.execute:
+            self.cursor.execute(
+                """ CREATE TABLE IF NOT EXISTS consumed (
+                        id              INTEGER          GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                        food_id         INTEGER          REFERENCES foods(id),
+                        daily_id        INTEGER          REFERENCES daily(id),
+                        time            TIMESTAMPTZ       NOT NULL DEFAULT NOW()
+                    );
+                """
+            )
         self.conn.commit()
 
     def down(self):

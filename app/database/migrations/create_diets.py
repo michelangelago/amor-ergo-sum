@@ -8,16 +8,17 @@ class DietMigration:
 
     def up(self):
         print("DietMI")
-        self.cursor.execute(
-            """ CREATE TABLE IF NOT EXISTS diets (
-                    id              INTEGER         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    name            TEXT            UNIQUE,
-                    description     TEXT,
-                    created_on      TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
-                    user_id         INTEGER         REFERENCES users(id)
-                );
-            """
-        )
+        with self.cursor.execute:
+            self.cursor.execute(
+                """ CREATE TABLE IF NOT EXISTS diets (
+                        id              INTEGER         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                        name            TEXT            UNIQUE,
+                        description     TEXT,
+                        created_on      TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
+                        user_id         INTEGER         REFERENCES users(id)
+                    );
+                """
+            )
         self.conn.commit()
 
     def down(self):
