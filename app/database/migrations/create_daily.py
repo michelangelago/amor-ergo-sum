@@ -8,7 +8,7 @@ class DailyMigration:
 
     def up(self):
         print("DailyMi")
-        with self.cursor.execute:
+        with self.cursor:
             self.cursor.execute(
                 """ CREATE TABLE IF NOT EXISTS daily (
                         id              INTEGER          GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -26,6 +26,6 @@ class DailyMigration:
         self.conn.commit()
 
     def down(self):
-        with self.cursor.execute:
+        with self.cursor:
             self.cursor.execute("DROP TABLE IF EXISTS daily;")
             self.conn.commit()

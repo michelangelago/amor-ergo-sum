@@ -8,7 +8,7 @@ class DietMigration:
 
     def up(self):
         print("DietMI")
-        with self.cursor.execute:
+        with self.cursor:
             self.cursor.execute(
                 """ CREATE TABLE IF NOT EXISTS diets (
                         id              INTEGER         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -22,6 +22,6 @@ class DietMigration:
         self.conn.commit()
 
     def down(self):
-        with self.cursor.execute:
+        with self.cursor:
             self.cursor.execute("DROP TABLE IF EXISTS diets;")
             self.conn.commit()

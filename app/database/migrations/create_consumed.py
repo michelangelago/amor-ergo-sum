@@ -8,7 +8,7 @@ class ConsumedMigration:
 
     def up(self):
         print("ConsumedMi")
-        with self.cursor.execute:
+        with self.cursor:
             self.cursor.execute(
                 """ CREATE TABLE IF NOT EXISTS consumed (
                         id              INTEGER          GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -21,6 +21,6 @@ class ConsumedMigration:
         self.conn.commit()
 
     def down(self):
-        with self.cursor.execute:
+        with self.cursor:
             self.cursor.execute("DROP TABLE IF EXISTS consumed;")
             self.conn.commit()

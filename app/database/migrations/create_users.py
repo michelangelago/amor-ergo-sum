@@ -8,7 +8,7 @@ class UserMigration:
 
     def up(self):
         print("UserMi")
-        with self.cursor.execute:
+        with self.cursor:
             self.cursor.execute(
                 """ CREATE TABLE IF NOT EXISTS users (
                         id              INTEGER         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -20,6 +20,6 @@ class UserMigration:
         self.conn.commit()
 
     def down(self):
-        with self.cursor.execute:
+        with self.cursor:
             self.cursor.execute("DROP TABLE IF EXISTS users;")
             self.conn.commit()
